@@ -3,14 +3,14 @@
 
 /**
  * _strlen - returns the length of a string
- * @str: string to be checked
- * Return: length of @str
+ * @s: string to be checked
+ * Return: length of @s
  */
-size_t _strlen(const char *str)
+int _strlen(char *s)
 {
 	size_t length = 0;
 	
-	while (*str++)
+	while (*s++)
 		length++;
 	return (length);
 }
