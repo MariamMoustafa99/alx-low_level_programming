@@ -40,7 +40,7 @@ char *_strcopy(char *dest, char *src)
  * new_dog - creates a new dog
  * @name: name of dog
  * @age: dog's age
- * #owner: dog's owner
+ * @owner: dog's owner
  * Return: struct pointer dog
  */
 
