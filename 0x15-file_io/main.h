@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#define READ_BUF_SIZE 1024
+
 
 int _putchar(char c);
 
