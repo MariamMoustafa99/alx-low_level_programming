@@ -25,7 +25,7 @@ void print_magic(Elf64_Ehdr h)
 void print_class(Elf64_Ehdr h)
 {
 	print("  Class:                             ");
-	switch (h.e_indent[EI_CLASS])
+	switch (h.e_ident[EI_CLASS])
 	{
 		case ELFCLASS64:
 			printf("ELF64");
@@ -48,7 +48,7 @@ void print_class(Elf64_Ehdr h)
 void print_data(Elf64_Ehdr h)
 {
 	print("  data:                             ");
-	switch (h.e_indent[EI_DATA])
+	switch (h.e_ident[EI_DATA])
 	{
 		case ELFDATA2MSB:
 			printf("2's complement, big endian");
@@ -70,8 +70,8 @@ void print_data(Elf64_Ehdr h)
 
 void print_version(Elf64_Ehdr h)
 {
-	print("  Version:                          %d", h.e_indent[EI_VERSION]);
-	switch (h.e_indent[EI_VERSION])
+	print("  Version:                          %d", h.e_ident[EI_VERSION]);
+	switch (h.e_ident[EI_VERSION])
 	{
 		case EV_CURRENT:
 			printf(" (current)");
@@ -107,8 +107,8 @@ int main(int ac, char **av)
 	b = read(fd, &h, sizeof(h));
 	if (b < 1 || b != sizeof(h))
 		dprintf(STDERR_FILENO, "Can't read from file: %s\n", av[1]), exit(98);
-	if (h.e_indent[0] == 0x7f && h.e_indent[1] == 'E' && h.e_indent[2] == 'L' &&
-			h.e_indent[3] == 'F')
+	if (h.e_ident[0] == 0x7f && h.e_ident[1] == 'E' && h.e_ident[2] == 'L' &&
+			h.e_ident[3] == 'F')
 	{
 		printf("ELF Header:\n");
 	}
@@ -125,6 +125,6 @@ int main(int ac, char **av)
 	print_entry(h);
 
 	if (close(fd))
-		dprinf(STDERR_FILENO, "Error closing file decriptor: %d\n", fd), exit(98);
+		dprintf(STDERR_FILENO, "Error closing file decriptor: %d\n", fd), exit(98);
 	return (EXIT_SUCCESS);
 }
