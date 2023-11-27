@@ -37,8 +37,8 @@ int create_file(const char *filename, char *text_content)
 	mn = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 	if (mn == -1)
 		return (-1);
-	if (len)
-		bytes = write(mn, text_content, len);
+	if (length)
+		bytes = write(mn, text_content, length);
 	close(mn);
-	return (bytes == len ? 1 : -1);
+	return (bytes == length ? 1 : -1);
 }
