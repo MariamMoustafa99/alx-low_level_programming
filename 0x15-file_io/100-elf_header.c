@@ -14,7 +14,7 @@ void print_magic(Elf64_Ehdr h)
 	
 	printf("  Magic:   ");
 	for (j = 0; j < EI_NIDENT; j++)
-		printf("%2.2x%s", h.e_indent[j], j == EI_NIDENT - 1 ? "\n" : " ");
+		printf("%2.2x%s", h.e_ident[j], j == EI_NIDENT - 1 ? "\n" : " ");
 }
 
 /**
@@ -24,7 +24,7 @@ void print_magic(Elf64_Ehdr h)
 
 void print_class(Elf64_Ehdr h)
 {
-	print("  Class:                             ");
+	printf("  Class:                             ");
 	switch (h.e_ident[EI_CLASS])
 	{
 		case ELFCLASS64:
@@ -47,7 +47,7 @@ void print_class(Elf64_Ehdr h)
 
 void print_data(Elf64_Ehdr h)
 {
-	print("  data:                             ");
+	printf("  data:                             ");
 	switch (h.e_ident[EI_DATA])
 	{
 		case ELFDATA2MSB:
@@ -64,13 +64,84 @@ void print_data(Elf64_Ehdr h)
 }
 
 /**
+ * print_osabi - prints ELF osabi
+ * @h: ELF header struct
+ */
+
+void print_osabi(Elf64_Ehdr h)
+{
+	printf("  OS/ABI:                            ");
+	switch (h.e_ident[EI_OSABI])
+	{
+		case ELFOSABI_NONE:
+			printf("UNIX - System V");
+			break;
+		case ELFOSABI_HPUX:
+			printf("UNIX - HP-UX");
+			break;
+		case ELFOSABI_NETBSD:
+			printf("UNIX - NetBSD");
+			break;
+		case ELFOSABI_LINUX:
+			printf("UNIX - Linux");
+			break;
+		case ELFOSABI_SOLARIS:
+			printf("UNIX - Solaris");
+			break;
+		case ELFOSABI_AIX:
+			printf("UNIX - AIX");
+			break;
+		case ELFOSABI_IRIX:
+			printf("UNIX - IRIX");
+			break;
+		case ELFOSABI_FREEBSD:
+			printf("UNIX - FreeBSD");
+			break;
+		case ELFOSABI_TRU64:
+			printf("UNIX - TRU64");
+			break;
+		default:
+			print_osabi_more(h);
+			break;
+	}
+	printf("\n");
+}
+
+/**
+ * print_osabi_more - prints ELF osabi more
+ * @h: ELF header struct
+ */
+
+void print_osabi_more(Elf64_Ehdr h)
+{
+	switch (h.e_ident[EI_OSABI])
+	{
+		case ELFOSABI_MODESTO:
+			printf("Novell - Modesto");
+			break;
+		case ELFOSABI_OPENBSD:
+			printf("UNIX - OpenBSD");
+			break;
+		case ELFOSABI_STANDALONE:
+			printf("Standalone App");
+			break;
+		case ELFOSABI_ARM:
+			printf("ARM");
+			break;
+		default:
+			printf("<unknown: %x>", h.e_ident[EI_OSABI]);
+			break;
+	}
+}
+
+/**
  * print_version - prints ELF version
  * @h: ELF header struct
  */
 
 void print_version(Elf64_Ehdr h)
 {
-	print("  Version:                          %d", h.e_ident[EI_VERSION]);
+	printf("  Version:                          %d", h.e_ident[EI_VERSION]);
 	switch (h.e_ident[EI_VERSION])
 	{
 		case EV_CURRENT:
@@ -84,6 +155,53 @@ void print_version(Elf64_Ehdr h)
 	printf("\n");
 }
 
+/**
+ * print_abiversion - prints ELF ABI version
+ * @h: ELF header struct
+ */
+
+void print_abiversion(Elf64_Ehdr h)
+{
+	printf("  ABI Version:                       %d\n",
+			h.e_ident[EI_ABIVERSION]);
+}
+
+/**
+ * print_type - prints ELF type
+ * @h: ELF header struct
+ */
+
+void print_type(Elf64_Ehdr h)
+{
+	char *p = (char *)&h.e_type;
+	int i = 0;
+
+	printf("  Type:                              ");
+	if (h.e_ident[EI_DATA] == ELFDATA2MSB)
+		i = 1;
+	switch (p[i])
+	{
+		case ET_NONE:
+			printf("NONE (None)");
+			break;
+		case ET_REL:
+			printf("REL (Relocatable file)");
+			break;
+		case ET_EXEC:
+			printf("EXEC (Executable file)");
+			break;
+		case ET_DYN:
+			printf("DYN (Shared object file)");
+			break;
+		case ET_CORE:
+			printf("CORE (Core file)");
+			break;
+		default:
+			printf("<unknown: %x>", p[i]);
+			break;
+	}
+	printf("\n");
+}
 
 /**
  * main - program
@@ -103,7 +221,7 @@ int main(int ac, char **av)
 		dprintf(STDERR_FILENO, "Usage: elf_header elf_filename\n"), exit(98);
 	fd = open(av[1], O_RDONLY);
 	if (fd == -1)
-		fprintf(STDERR_FILENO, "Can't open file: %s\n", av[1]), exit(98);
+		dprintf(STDERR_FILENO, "Can't open file: %s\n", av[1]), exit(98);
 	b = read(fd, &h, sizeof(h));
 	if (b < 1 || b != sizeof(h))
 		dprintf(STDERR_FILENO, "Can't read from file: %s\n", av[1]), exit(98);
@@ -122,7 +240,6 @@ int main(int ac, char **av)
 	print_osabi(h);
 	print_abiversion(h);
 	print_type(h);
-	print_entry(h);
 
 	if (close(fd))
 		dprintf(STDERR_FILENO, "Error closing file decriptor: %d\n", fd), exit(98);
